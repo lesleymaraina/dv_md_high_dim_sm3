@@ -899,7 +899,26 @@ ggplot(enrich, aes(x = gene_ratio, y = reorder(pathway, gene_ratio))) +
 
 
 
+## <span style="font-size:80%">Summary</span> {.smaller}
 
+High-dimensional data visualization helps connect statistics to complex biological trends
+
+Two core visualization strategies drive interpretation include:
+
+- **Networks**: 
+
+  - shows how features relate—revealing correlated genes, shared regulation, and functional neighborhoods
+
+- **Pathways**: 
+
+  - Shows what biological programs explain those relationships
+
+  - Connects statistical patterns to biological mechanisms
+
+
+::: footer
+
+:::
 
 
 
