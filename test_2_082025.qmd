@@ -1,0 +1,1404 @@
+---
+title: "From Raw Data to Insight: Structuring Complexity"
+author: "<br><br><span style='font-size:25px;'><strong>Lesley Chapman Hannah, Ph.D., M.S.</strong></span><br>College of Graduate Studies<br>Northeast Ohio Medical University"
+
+format: 
+  revealjs:
+    #theme: solarized
+    css: style.css
+    slide-number: true
+    chalkboard: 
+      buttons: false
+    preview-links: auto
+    logo: images/Flame.jpg
+    #css: styles.css
+    
+---
+
+## <span style="font-size:80%">Lecture Outline</span> {.smaller}
+
+
+- Review: turn high dimensional data into insight
+
+  - Understand how complex, multi-variable analyses—such as gene expression, proteomic, or variant data—are distilled into interpretable biological patterns through plots
+
+- Mapping relationships and biological connectivity through biological networks
+
+  - Learn how network and pathway visualizations uncover the relational geometry of biological systems
+
+- Aggregating evidence from high-dimensional data into pathways
+
+  - Understand how pathway enrichment plots connect quantitative outcomes to biological mechanisms
+
+
+::: footer
+
+:::
+
+
+## <span style="font-size:80%">Recap: High-dimensional [HD] Data Analysis</span> {.smaller}
+
+
+Sources of HD data: 
+
+- Arises from modern -omics, imaging, EHR, and wearable streams
+
+- Millions of features per patient, making dimensionality reduction and organization essential for interpretation
+
+- Transforms data complexity into perceivable structure—turns thousands of features into a spatial or conceptual map of biological systems
+
+HD Analysis Strategy
+
+- Dimensionality reduction reveals global structure—clusters, gradients, trajectories
+
+- Reveals where patterns live but does not explain biological mechanism 
+
+HD visualization reveals global structures:
+
+- HD data visualization reveals connectivity between biologically features forming meaningful connections rarely driven by single genes or measurements
+
+- Connectivity-based visuals that make these relationships visible: gene co-expression networks, functional modules, pathway cross-talk maps
+
+::: footer
+
+:::
+
+## <span style="font-size:80%">Connecting Statistical Output to Biological Interpretation in High-Dimensional Data Analysis</span> {.smaller}
+
+
+High-dimensional data analysis can produce thousands of statistical results: differential expression tests, feature correlations, variant associations numbers to interpret directly
+
+Visualization transforms this statistical matrix into visual reasoning using the following two approaches:
+
+- Networks $\rightarrow$ How do features relate?
+
+- Pathways $\rightarrow$ What biological programs explain this pattern?
+
+
+::: footer
+
+:::
+
+
+## <span style="font-size:80%">Connecting Statistical Output to Biological Interpretation in High-Dimensional Data Analysis</span> {.smaller}
+
+
+High-dimensional data analysis can produce thousands of statistical results: differential expression tests, feature correlations, variant associations numbers to interpret directly
+
+Visualization transforms this statistical matrix into visual reasoning using the following approaches:
+
+- Networks $\rightarrow$ How do features relate?
+
+  - In high-dimensional space, features (genes, proteins, variants) form co-expression or co-regulation modules
+
+  - Network visualizations reduce dimensionality by mapping correlations into a perceivable structure — revealing functional neighborhoods within the data
+  
+  - Example: Thousands of genes/features $\rightarrow$ network modules reduce complexity by grouping correlated features into “neighbourhoods”
+
+
+
+::: footer
+
+:::
+
+
+
+## <span style="font-size:80%">Connecting Statistical Output to Biological Interpretation in High-Dimensional Data Analysis</span> {.smaller}
+
+::: columns
+::: {.column width="50%"}
+
+
+:::
+
+::: {.column width="50%"}
+
+
+![](images/figure_1.png){.border .border-thick}
+:::
+<span style="font-size:50%">Rolland, T. et al. Cell 159, 1212–1226 (2014)</span>
+:::
+::: footer
+:::
+
+
+## <span style="font-size:80%">Networks and Modules: Seeing Connectivity</span> {.smaller}
+
+
+- In HD biology, relationships among features are often more important than the features themselves
+
+- Gene co-expression networks reveal groups of genes that rise/fall together—suggesting shared regulatory control
+
+- Protein–protein interaction (PPI) graphs identify modules that cooperate in signaling, metabolism, or immune activation
+
+- Pathway maps collapse thousands of interacting genes into interpretable sub-networks.
+
+- Visual encodings provide mechanistic meaning:
+
+  - Color $\rightarrow$ module identity
+
+  - Edge transparency $\rightarrow$ strength of correlation/interaction
+
+  - Node size $\rightarrow$ importance (centrality, hubness)
+
+
+
+::: footer
+
+:::
+
+
+
+## <span style="font-size:80%">Data Visualization for Gene Co-expression Networks</span> {.smaller}
+
+
+**Biological Question**: How do genes within the same biological process—such as cytokine signaling, interferon response, or metabolic regulation—co-vary across samples, and which genes serve as key connectors within these processes?
+
+**Data [simulated]**:
+
+- 40 samples
+
+- 15 genes
+
+**Chart type**:
+
+- network graph represents relationships (edges) between entities (nodes)
+
+- Nodes $\rightarrow$ genes
+
+- Edges $\rightarrow$ strong pairwise correlations in gene expression
+
+**Goal(s)**:
+
+- Reveal clusters or modules of genes that function together
+
+- Highlight hub genes, which may regulate or integrate biological pathways
+
+
+::: footer
+
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Data Visualization for Gene Co-expression Networks</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Plot Interpretation**:
+
+- **Each point** (node) represents a gene
+  
+  - Point positions are derived from pairwise gene–gene correlations, so genes that behave similarly across patients or conditions appear closer together
+
+
+- **Solid grey edges** link genes whose expression patterns are strongly correlated (|r| > threshold)
+
+  - These edges show co-expression relationships, mapping the local structure of molecular coordination
+
+
+- **Color encodes biological modules**: Cytokine, Interferon, and Metabolic — allowing us to see whether genes cluster by known functional groupings
+
+
+- **Node size** represents hubness (degree)
+
+  - Larger nodes are genes that co-vary with many others and may act as key regulators or integrators of biological signals
+
+
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+# install.packages(c("tidyverse", "igraph", "ggraph"))  # if needed
+
+library(tidyverse)
+set.seed(2025)
+
+# ---------- Simulate Data ----------
+n  <- 40
+p  <- 15
+genes <- paste0("Gene_", LETTERS[1:p])
+mod1 <- 1:5; mod2 <- 6:10; mod3 <- 11:15
+
+z1 <- rnorm(n); z2 <- rnorm(n); z3 <- rnorm(n)
+expr <- matrix(rnorm(n * p, sd = 0.35), nrow = n, ncol = p)
+colnames(expr) <- genes
+expr[, mod1] <- expr[, mod1] + 1.2*z1
+expr[, mod2] <- expr[, mod2] + 1.2*z2
+expr[, mod3] <- expr[, mod3] + 1.2*z3
+
+# ---------- correlations & adaptive threshold ----------
+C <- cor(expr)
+diag(C) <- 0
+abs_r <- abs(C[upper.tri(C)])
+
+# primary threshold from the 70th percentile (tweak if you like)
+thr <- unname(quantile(abs_r, 0.70))
+
+edges <- as.data.frame(as.table(C)) |>
+  rename(from = Var1, to = Var2, r = Freq) |>
+  filter(from < to, abs(r) >= thr)
+
+# if still no edges, build k-nearest neighbor edges (k = 2)
+if (nrow(edges) == 0) {
+  k <- 2
+  combs <- lapply(seq_len(p), function(i){
+    rr <- abs(C[i, ])
+    rr[i] <- -Inf
+    nbrs <- names(sort(rr, decreasing = TRUE))[seq_len(k)]
+    tibble(from = colnames(C)[i], to = nbrs, r = C[i, nbrs])
+  }) |> list_rbind()
+
+  edges <- combs |>
+    rowwise() |>
+    mutate(a = min(from, to), b = max(from, to)) |>
+    ungroup() |>
+    distinct(a, b, .keep_all = TRUE) |>
+    transmute(from = a, to = b, r)
+}
+
+# ---------- layout via MDS ----------
+D <- 1 - abs(C); D[D < 0] <- 0
+coords <- cmdscale(as.dist(D), k = 2)
+
+nodes <- tibble(
+  gene = rownames(coords),
+  x = coords[,1],
+  y = coords[,2],
+  module = case_when(
+    gene %in% genes[mod1] ~ "Cytokine",
+    gene %in% genes[mod2] ~ "Interferon",
+    TRUE                  ~ "Metabolic"
+  )
+)
+
+# ---------- node degree ----------
+deg <- edges |>
+  select(from, to) |>
+  pivot_longer(everything(), values_to = "gene") |>
+  count(gene, name = "degree")
+
+nodes <- nodes |>
+  left_join(deg, by = "gene") |>
+  mutate(degree = replace_na(degree, 0))
+
+# join edge coordinates
+edges_plot <- edges |>
+  left_join(nodes, by = c("from" = "gene")) |>
+  rename(x_from = x, y_from = y) |>
+  left_join(nodes, by = c("to" = "gene")) |>
+  rename(x_to = x, y_to = y) |>
+  mutate(alpha = scales::rescale(abs(r), to = c(0.25, 1)))
+
+# ---------- plot ----------
+ggplot() +
+  # solid grey edges
+  geom_segment(
+    data = edges_plot,
+    aes(x = x_from, y = y_from, xend = x_to, yend = y_to, alpha = alpha),
+    color = "grey60", linewidth = 0.8
+  ) +
+  # nodes
+  geom_point(
+    data = nodes,
+    aes(x = x, y = y, color = module, size = degree)
+  ) +
+  geom_text(
+    data = nodes,
+    aes(x = x, y = y, label = gene),
+    vjust = -1, size = 3
+  ) +
+  scale_alpha(range = c(0.25, 1), guide = "none") +
+  scale_size_continuous(range = c(3, 8)) +
+  scale_color_brewer(palette = "Set2") +
+  coord_equal() +
+  theme_void(base_size = 13) +
+  labs(
+    title = "Simulated Gene Co-expression Network",
+    subtitle = paste0("Solid edges = strong correlations (thr ≈ ", round(thr, 2),
+                      ") \n color = biological module \n size = hubness")
+  )
+
+
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Data Visualization for Gene Co-expression Networks</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Plot Interpretation**:
+
+- **Green cluster - cytokine cluster**:
+
+Genes likely to coordinate inflammatory communication between cells
+
+
+- **Orange cluster - interferon cluster**:
+
+Genes co-activated as part of the antiviral defense response, typically regulated by interferon pathways
+
+
+- **Blue cluster - metabolic cluster**:
+
+Genes whose expression reflects shared metabolic or energy-regulation processes, providing the cellular resources needed to sustain immune activity
+
+
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+# install.packages(c("tidyverse", "igraph", "ggraph"))  # if needed
+
+library(tidyverse)
+set.seed(2025)
+
+# ---------- Simulate Data ----------
+n  <- 40
+p  <- 15
+genes <- paste0("Gene_", LETTERS[1:p])
+mod1 <- 1:5; mod2 <- 6:10; mod3 <- 11:15
+
+z1 <- rnorm(n); z2 <- rnorm(n); z3 <- rnorm(n)
+expr <- matrix(rnorm(n * p, sd = 0.35), nrow = n, ncol = p)
+colnames(expr) <- genes
+expr[, mod1] <- expr[, mod1] + 1.2*z1
+expr[, mod2] <- expr[, mod2] + 1.2*z2
+expr[, mod3] <- expr[, mod3] + 1.2*z3
+
+# ---------- correlations & adaptive threshold ----------
+C <- cor(expr)
+diag(C) <- 0
+abs_r <- abs(C[upper.tri(C)])
+
+# primary threshold from the 70th percentile (tweak if you like)
+thr <- unname(quantile(abs_r, 0.70))
+
+edges <- as.data.frame(as.table(C)) |>
+  rename(from = Var1, to = Var2, r = Freq) |>
+  filter(from < to, abs(r) >= thr)
+
+# if still no edges, build k-nearest neighbor edges (k = 2)
+if (nrow(edges) == 0) {
+  k <- 2
+  combs <- lapply(seq_len(p), function(i){
+    rr <- abs(C[i, ])
+    rr[i] <- -Inf
+    nbrs <- names(sort(rr, decreasing = TRUE))[seq_len(k)]
+    tibble(from = colnames(C)[i], to = nbrs, r = C[i, nbrs])
+  }) |> list_rbind()
+
+  edges <- combs |>
+    rowwise() |>
+    mutate(a = min(from, to), b = max(from, to)) |>
+    ungroup() |>
+    distinct(a, b, .keep_all = TRUE) |>
+    transmute(from = a, to = b, r)
+}
+
+# ---------- layout via MDS ----------
+D <- 1 - abs(C); D[D < 0] <- 0
+coords <- cmdscale(as.dist(D), k = 2)
+
+nodes <- tibble(
+  gene = rownames(coords),
+  x = coords[,1],
+  y = coords[,2],
+  module = case_when(
+    gene %in% genes[mod1] ~ "Cytokine",
+    gene %in% genes[mod2] ~ "Interferon",
+    TRUE                  ~ "Metabolic"
+  )
+)
+
+# ---------- node degree ----------
+deg <- edges |>
+  select(from, to) |>
+  pivot_longer(everything(), values_to = "gene") |>
+  count(gene, name = "degree")
+
+nodes <- nodes |>
+  left_join(deg, by = "gene") |>
+  mutate(degree = replace_na(degree, 0))
+
+# join edge coordinates
+edges_plot <- edges |>
+  left_join(nodes, by = c("from" = "gene")) |>
+  rename(x_from = x, y_from = y) |>
+  left_join(nodes, by = c("to" = "gene")) |>
+  rename(x_to = x, y_to = y) |>
+  mutate(alpha = scales::rescale(abs(r), to = c(0.25, 1)))
+
+# ---------- plot ----------
+ggplot() +
+  # solid grey edges
+  geom_segment(
+    data = edges_plot,
+    aes(x = x_from, y = y_from, xend = x_to, yend = y_to, alpha = alpha),
+    color = "grey60", linewidth = 0.8
+  ) +
+  # nodes
+  geom_point(
+    data = nodes,
+    aes(x = x, y = y, color = module, size = degree)
+  ) +
+  geom_text(
+    data = nodes,
+    aes(x = x, y = y, label = gene),
+    vjust = -1, size = 3
+  ) +
+  scale_alpha(range = c(0.25, 1), guide = "none") +
+  scale_size_continuous(range = c(3, 8)) +
+  scale_color_brewer(palette = "Set2") +
+  coord_equal() +
+  theme_void(base_size = 13) +
+  labs(
+    title = "Simulated Gene Co-expression Network",
+    subtitle = paste0("Solid edges = strong correlations (thr ≈ ", round(thr, 2),
+                      ") \n color = biological module \n size = hubness")
+  )
+
+
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+
+
+
+## <span style="font-size:80%">Connecting Statistical Output to Biological Interpretation in High-Dimensional Data Analysis</span> {.smaller}
+
+
+High-dimensional data analysis can produce thousands of statistical results: differential expression tests, feature correlations, variant associations numbers to interpret directly
+
+Visualization transforms this statistical matrix into visual reasoning using the following approaches:
+
+- Pathways $\rightarrow$ What biological programs explain this pattern?
+
+  - Once subsections of data are visible, mapping them to pathways or ontologies connects the statistical pattern to biological mechanism — turning feature clusters into interpretable processes
+
+  - Example: module corresponds to a T-cell activation pathway / metabolic shift
+
+
+
+::: footer
+
+:::
+
+
+
+## <span style="font-size:80%">Pathway Level Analysis: Organizing Thousands of Tests</span> {.smaller}
+
+
+- Organize results into interpretable biological systems
+
+- Data visualization strategies to transform tabular data containing significant genes into visual structures
+
+- Visual aggregation = clarity: grouping results by pathways (GO, KEGG, Reactome)
+
+::: footer
+
+:::
+
+
+
+## <span style="font-size:80%">Pathway Level Analysis: Organizing Thousands of Tests</span> {.smaller}
+
+
+- After running biomedical analysis - differential expression, epigenetic analysis, proteomics - obtain thousands of significant hits
+
+- Raw tables of p-values offer no biological clarity—HD data must be grouped into interpretable themes
+
+- Pathway level analysis moves from individual gene results (micro-level) to systems-level meaning (macro-level)
+
+
+::: footer
+
+:::
+
+
+## <span style="font-size:80%">Pathway Level Analysis: Organizing Thousands of Tests</span> {.smaller}
+
+Visual aggregation reveals biological programs, not individual genes
+
+HD pathway level visualization types:
+
+- **Dot plots** $\rightarrow$ summarize enrichment significance and effect size across pathways
+
+- **Enrichment maps** $\rightarrow$ network-style visuals linking related functions (e.g., immune signaling $\leftrightarrow$ cytokine response)
+
+- **Network graphs** $\rightarrow$ reveal cross-talk between processes, bridging molecular and clinical insight
+
+
+::: footer
+
+:::
+
+
+
+## <span style="font-size:80%">Pathway Level Analysis: Organizing Thousands of Tests</span> {.smaller}
+
+**Research Question**: Which biological pathways exhibit coordinated shifts in gene expressio, and how does the gene ratio (overlap / pathway size) highlight the relative strength of each pathway’s activation?
+
+**Data [simulated]**: 
+
+  - 3,000 genes with expression changes [log-fold changes] and p-values
+
+  - Biological processes drawn from KEGG/Reactome/GO
+
+::: footer
+
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Pathway Level Analysis: Organizing Thousands of Tests</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Plot**:
+
+  - Pathway enrichment dot plot
+
+  - Plot summarizes thousands of statistical tests into a small number of interpretable biological themes
+
+**Plot Interpretation**
+
+  - Row $\rightarrow$ pathway
+
+  - Dot $\rightarrow$ level of pathway enrichment in the data
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+# ---------------------------
+# Pathway Enrichment Dot Plot with Uniform Color (Simulated Data)
+# ---------------------------
+library(tidyverse)
+
+set.seed(7)
+
+# 1) Simulate differential expression results
+n_genes <- 3000
+genes   <- paste0("G", seq_len(n_genes))
+
+# effect sizes + p-values: mixture of null + signal
+logFC <- rnorm(n_genes, 0, 0.6)
+is_sig <- rbinom(n_genes, 1, prob = plogis(abs(logFC) - 1.0))  
+pval <- ifelse(is_sig == 1, runif(n_genes, 1e-6, 0.01), runif(n_genes, 0.05, 1))
+
+de <- tibble(gene = genes, logFC = logFC, pval = pval) |>
+  mutate(fdr = p.adjust(pval, method = "BH"))
+
+# "Selected" genes (e.g., DE at FDR < 0.05)
+sel <- de |> filter(fdr < 0.05) |> pull(gene)
+
+# 2) Realistic pathway names (common KEGG/Reactome/GO labels)
+pathways <- c(
+  "Interferon Alpha/Beta Signaling",
+  "Interferon Gamma Signaling",
+  "Cytokine Signaling in Immune System",
+  "TNF Signaling Pathway",
+  "NF-kappaB Signaling Pathway",
+  "T Cell Receptor Signaling",
+  "B Cell Receptor Signaling",
+  "Antigen Processing and Presentation",
+  "JAK-STAT Signaling Pathway",
+  "Chemokine Signaling Pathway",
+  "Complement Cascade",
+  "Toll-like Receptor Signaling",
+  "MAPK Signaling Pathway",
+  "PI3K-Akt Signaling Pathway",
+  "p53 Signaling Pathway",
+  "Apoptosis",
+  "Cell Cycle",
+  "DNA Repair",
+  "Oxidative Phosphorylation",
+  "Glycolysis / Gluconeogenesis",
+  "Fatty Acid Beta-Oxidation",
+  "mTOR Signaling Pathway",
+  "HIF-1 (Hypoxia) Signaling",
+  "Unfolded Protein Response",
+  "Autophagy",
+  "ER Stress Response",
+  "Notch Signaling",
+  "Wnt Signaling",
+  "Hedgehog Signaling",
+  "Angiogenesis"
+)
+
+# Assign realistic pathway sizes (30–200 genes) and build gene sets
+set_sizes <- sample(30:200, length(pathways), replace = TRUE)
+gene_sets <- lapply(set_sizes, function(k) sample(genes, k))
+
+# 3) ID over-representation test (Fisher's exact) per pathway
+universe <- length(genes)
+k_sel    <- length(sel)
+
+enrich <- map2_dfr(pathways, gene_sets, function(path, set_genes) {
+  k_in_set     <- length(intersect(set_genes, sel))
+  set_size     <- length(set_genes)
+  k_not_in_set <- k_sel - k_in_set
+  not_set_size <- universe - set_size
+
+  mat <- matrix(c(k_in_set, k_not_in_set,
+                  set_size - k_in_set, not_set_size - k_not_in_set), nrow = 2)
+  p <- fisher.test(mat, alternative = "greater")$p.value
+
+  tibble(
+    pathway = paste0(path, " (n=", set_size, ")"),
+    set_size = set_size,
+    overlap = k_in_set,
+    p = p,
+    gene_ratio = k_in_set / set_size
+  )
+})
+
+enrich <- enrich |>
+  mutate(fdr = p.adjust(p, method = "BH")) |>
+  arrange(fdr, desc(gene_ratio)) |>
+  slice_head(n = 20)
+
+# 4) Plot
+ggplot(enrich, aes(x = gene_ratio, y = reorder(pathway, gene_ratio))) +
+  geom_point(aes(size = overlap), color = "#2A76DD") +   # same blue for all dots
+  scale_size_continuous(name = "Overlap (genes)", breaks = pretty(enrich$overlap)) +
+  labs(
+    title = "Pathway Enrichment Dot Plot (Uniform Color)",
+    subtitle = "X = Gene Ratio (overlap/size); all dots same color; size = overlapping genes",
+    x = "Gene Ratio (overlap / pathway size)", y = "Pathway"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid.minor = element_blank())
+
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## <span style="font-size:80%"></span> {.smaller}
+
+::: columns
+::: {.column width="70%"}
+![](images/figure_1.jpg){.border .border-thick}
+:::
+
+::: {.column width="0%"}
+
+
+::: incremental
+
+
+:::
+:::
+
+:::
+::: footer
+:::
+
+
+
+
+
+## <span style="font-size:80%"></span> {.smaller}
+
+::: columns
+::: {.column width="70%"}
+![](images/figure_2_patient.png){.border .border-thick}
+:::
+
+::: {.column width="0%"}
+
+
+::: incremental
+
+
+:::
+:::
+
+:::
+::: footer
+:::
+
+
+## <span style="font-size:80%"></span> {.smaller}
+
+::: columns
+::: {.column width="70%"}
+![](images/figure_3_data.png){.border .border-thick}
+:::
+
+::: {.column width="20%"}
+$\gg$
+
+::: incremental
+
+
+:::
+:::
+
+:::
+::: footer
+:::
+
+
+
+
+## Lecture Outline
+
+
+- Understanding what numeric data represent
+
+- Visualizing numeric meaning - how quantities appear when plotted
+
+- Visualization design depends on variable type, measurement scale, and clinical relevance
+
+
+
+::: footer
+
+:::
+
+
+
+
+## <span style="font-size:80%">Understanding what numeric data represent</span> {.smaller}
+
+
+- Quantitative variables describe measurable aspects of biology and clinical care
+
+- Continuous vs. discrete values
+
+- Biomedical anchoring: numbers derive meaning from context
+
+
+
+
+::: footer
+
+:::
+
+
+## <span style="font-size:80%">Understanding what numeric data represent</span> {.smaller}
+
+**Quantitative variables describe measurable aspects of biology and clinical care**
+
+Numbers encode a measurable aspect of physiology, disease progression, or system performance
+
+- Intensity — reflects a level at a given point in time
+
+  - Example: fasting glucose (mg/dL) captures the concentration of circulating glucose in the blood at a moment
+
+
+- Magnitude — reflects how much of something exists or is expressed
+
+
+  - Example: HbA1c (%) indicates the cumulative magnitude of glucose exposure over months — it quantifies chronic metabolic burden
+
+
+- Duration — measures how long an event, exposure, or state persists
+
+
+  - Example: weeks on therapy or months since diagnosis track persistence of intervention or disease
+
+
+- Rate — quantifies the speed of change per unit time
+
+
+  - Example: ΔHbA1c per month indicates how rapidly glycemic control is improving or worsening
+
+
+
+
+::: footer
+
+:::
+
+
+
+
+## <span style="font-size:80%">Understanding what numeric data represent</span> {.smaller}
+
+**Continuous vs. Discrete Values**
+
+Not all numeric variables behave the same way visually or statistically
+
+- Continuous variables — can take on any value within a range
+
+  - Example: fasting glucose can be 89.7 or 90.3 mg/dL — continuity matters for pattern recognition and precision
+
+  - Visual implication: continuous values are best shown through smooth scales — histograms, scatterplots, line charts
+
+- Discrete variables — represent countable categories or fixed levels
+
+  - Example: therapy dose (0, 5, 10, 20 mg) or visit count (1, 2, 3)
+
+  - Visual implication: use spacing or grouping — bar charts, dot plots, or step plots — to preserve discrete jumps
+
+::: footer
+:::
+
+
+
+## <span style="font-size:80%">Understanding what numeric data represent</span> {.smaller}
+
+**Clinical Anchoring: Numbers Derive Meaning from Context**
+
+A numeric value only gains interpretive power when anchored to clinical or biological reference
+Without context, numbers are meaningless 
+
+With context numbers convey risk, efficacy, or progress
+
+- Example: an HbA1c of 9.5% means “poor glycemic control” because clinicians know normal is <7%
+
+- Example: a 1.5% reduction in HbA1c after 12 weeks signals clinically meaningful improvement, not merely statistical change
+
+- Context transforms numeric data into decision-relevant evidence — what’s “normal,” what’s “effective,” what’s “concerning”
+
+::: footer
+:::
+
+
+
+## <span style="font-size:80%">Example: Understanding Magnitude</span> {.smaller}
+
+
+*Research Question*: How much does mean HbA1c decline across treatment arms after 12 weeks of therapy?
+
+*Reminder*: HbA1c - Hemoglobin A1c 
+
+- Protein found in blood 
+
+- Formed when glucose (sugar) in the blood attaches to hemoglobin
+
+- Measure of blood sugar levels
+
+
+::: footer
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Example: Understanding Magnitude</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Plot Type**: Bar chart 
+
+- Encodes numeric magnitude by length from baseline
+
+- Plot for comparing independent groups
+
+**Rationale:**
+
+- Bar charts emphasize group-level change at a fixed endpoint 
+
+- Tool to visualize therapeutic efficacy in a clinical trial
+
+
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+library(tidyverse); set.seed(1)
+
+df <- tibble(
+  treatment = c("Placebo", "Low Dose", "High Dose"),
+  mean_hba1c = c(-0.2, -0.8, -1.5),
+  se = c(0.1, 0.15, 0.2)
+)
+
+ggplot(df, aes(x = treatment, y = mean_hba1c)) +
+  geom_col(fill = "#68ccc4") +
+  geom_errorbar(aes(ymin = mean_hba1c - se, ymax = mean_hba1c + se), width = 0.2) +
+  labs(title = "Mean HbA1c Reduction After 12 Weeks", y = "Δ HbA1c (%)") +
+  theme_minimal(base_size = 13)
+
+
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+
+
+
+## <span style="font-size:80%">Review: Encoding Numbers for Perception</span> {.smaller}
+
+**What “Encoding” Means in Visualization**
+
+- Encoding is the act of converting a numeric value into a visual variable that the human visual system can interpret
+
+- It is how quantitative evidence becomes visible: position, length, area, color, slope, or angle
+
+- Encoding sits at the intersection of measurement and cognition
+
+::: footer
+:::
+
+
+
+## <span style="font-size:80%">Review: Encoding Numbers for Perception</span> {.smaller}
+
+
+::: columns
+::: {.column width="50%" style="font-size: 15pt;"}
+**What “Encoding” Means in Visualization**
+
+- Not all encodings convey numeric magnitude equally well
+
+- Use position when precision matters
+
+- Use color or area when conveying broad patterns or categorical context
+
+- Pattern recognition or classification: color or area can add secondary structure
+:::
+
+::: {.column width="10%" style="font-size: 15pt;"}
+| Encoding | Use Case     |
+|-----------|--------------|
+| `Position` | Continuous quantitative comparison (scatter, line, dot plots) |
+| `Length` | Comparing magnitudes from a common zero (bars, lollipops) |
+| `Angle/Slope` | Change, ratio, or trend (lines, radar charts) |
+| `Area/Volume` | Expressing relative scale, emphasis, or uncertainty (bubbles, heatmaps) |
+| `Color (Hue/Intensity)` | Differentiating groups or encoding ordinal ranges |
+:::
+
+:::
+::: footer
+:::
+
+
+
+## <span style="font-size:80%">Example: Dose–Response Relationship</span> {.smaller}
+
+*Research Question*: Is greater medication dose associated with larger HbA1c reduction?
+
+Reminder:
+
+Visual encoding transforms numbers into perceptual form
+
+Position and length $\rightarrow$ precise
+
+color or area $\rightarrow$ approximate but add context
+
+
+::: footer
+:::
+
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Dose–Response Relationship</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Plot Type**: scatter plot
+
+- Encodes paired quantitative variables
+
+- Ideal for examining dose–response
+
+**Rationale**:
+
+Reveals correlation, variability, and trend direction between two continuous measures
+
+
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+set.seed(2)
+df <- tibble(
+  dose_mg = runif(80, 0, 100),
+  delta_hba1c = -0.2 - 0.015*dose_mg + rnorm(80, 0, 0.2)
+)
+
+ggplot(df, aes(dose_mg, delta_hba1c)) +
+  geom_point(alpha = 0.6, color = "#4B9CD3") +
+  geom_smooth(method = "lm", se = FALSE, color = "#1B9E77") +
+  labs(title = "Dose–Response: HbA1c Change by Medication Dose",
+       x = "Dose (mg)", y = "Δ HbA1c (%)") +
+  theme_minimal(base_size = 13)
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:80%">Visualizing Change: Numeric Trajectories </span> {.smaller}
+
+- Longitudinal Numeric Data Reveal Process
+
+- Line Plots Connect Sequential Measures
+
+- Plots can help determine how fast and how persistently a biomarker changes
+
+
+::: footer
+:::
+
+
+## <span style="font-size:80%">Visualizing Change: Numeric Trajectories </span> {.smaller}
+
+Longitudinal Numeric Data Reveal Process
+
+- Most biomedical observations are dynamic
+
+- Single measurement : current state of an observation(i.e.: HbA1c value at week 12), reveals little about how 
+
+- Longitudinal data :
+
+  - multiple numeric observations over time 
+
+  - captures the trajectory of change
+
+::: footer
+:::
+
+
+## <span style="font-size:80%">Visualizing Change: Numeric Trajectories </span> {.smaller}
+
+Line Plots Connect Sequential Measures
+
+- Line plot : tool for visualizing numeric change over time or dose
+
+- Each slope segment encodes rate of change:
+
+  - Steep decline $\rightarrow$ rapid therapeutic response
+
+  - Flat region $\rightarrow$ stability or steady state
+
+  - Upturn $\rightarrow$ relapse or rebound
+
+- Line direction and curvature make dynamic patterns perceptible at a glance
+
+::: footer
+:::
+
+
+
+
+## <span style="font-size:80%">Visualizing Change: Numeric Trajectories </span> {.smaller}
+
+Plots can help determine how fast and how persistently a biomarker changes
+
+- Line trajectories show whether an intervention acts quickly, maintains response, or loses efficacy over time
+
+
+::: footer
+:::
+
+
+
+## <span style="font-size:80%">Visualizing Change: Numeric Trajectories </span> {.smaller}
+
+**Research question**: 
+
+How does HbA1c evolve over 24 weeks among patients receiving low vs. high dose therapy?
+
+**Plot Type**: Line plot 
+
+- Connects repeated measurements per patient, summarizing time-dependent response
+
+Reason for Selection:
+
+- Depicts rate and pattern of change 
+
+
+::: footer
+:::
+
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Visualizing Change: Numeric Trajectories</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Research question**: 
+
+How does HbA1c evolve over 24 weeks among patients receiving low vs. high dose therapy?
+
+**Plot Type**: Line plot 
+
+- Connects repeated measurements per patient, summarizing time-dependent response
+
+**Reason for Selection**:
+
+- Depicts rate and pattern of change 
+
+
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+library(tidyverse)
+set.seed(4)
+
+weeks <- 0:24
+patients <- tibble(
+  patient = paste0("P", 1:15),
+  treatment = rep(c("Low Dose", "High Dose"), length.out = 15)
+)
+
+dat <- patients |>
+  crossing(week = weeks) |>
+  mutate(
+    hba1c = 8 - if_else(treatment == "High Dose", 0.06, 0.03) * week + rnorm(n(), 0, 0.2)
+  )
+
+ggplot(dat, aes(week, hba1c, group = patient, color = treatment)) +
+  geom_line(alpha = 0.5, linewidth = 0.9) +   # individual patients per treatment color
+  stat_summary(
+    fun = mean,
+    geom = "line",
+    linewidth = 1.5
+  ) +                                          # mean line per group in matching color
+  scale_color_manual(
+    values = c("Low Dose" = "#6CA6CD", "High Dose" = "#1B9E77")
+  ) +
+  labs(
+    title = "HbA1c Trajectories by Treatment Arm",
+    subtitle = "Colored lines = individual patients; bold = mean trajectory per group",
+    x = "Week",
+    y = "HbA1c (%)",
+    color = "Treatment"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top")
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+## <span style="font-size:60%">Visualizing Change: Numeric Trajectories</span> {.smaller}
+
+
+::: columns
+::: {.column .small}
+
+**Interpretation**: 
+
+- Each colored line represents one patient’s HbA1c (%) over 24 weeks of therapy
+- Two treatment groups:
+  - High Dose (green)
+  - Low Dose (blue)
+- Treatment effectiveness: both groups show a steady downward trend in HbA1c 
+- High dose group: declines faster and reaches a lower mean HbA1c by Week 24
+- Low dose group: shows a slower, smaller reduction 
+
+
+:::
+::: column
+
+```{r}
+#| fig-width: 8
+#| fig-height: 9
+
+library(tidyverse)
+set.seed(4)
+
+weeks <- 0:24
+patients <- tibble(
+  patient = paste0("P", 1:15),
+  treatment = rep(c("Low Dose", "High Dose"), length.out = 15)
+)
+
+dat <- patients |>
+  crossing(week = weeks) |>
+  mutate(
+    hba1c = 8 - if_else(treatment == "High Dose", 0.06, 0.03) * week + rnorm(n(), 0, 0.2)
+  )
+
+ggplot(dat, aes(week, hba1c, group = patient, color = treatment)) +
+  geom_line(alpha = 0.5, linewidth = 0.9) +   # individual patients per treatment color
+  stat_summary(
+    fun = mean,
+    geom = "line",
+    linewidth = 1.5
+  ) +                                          # mean line per group in matching color
+  scale_color_manual(
+    values = c("Low Dose" = "#6CA6CD", "High Dose" = "#1B9E77")
+  ) +
+  labs(
+    title = "HbA1c Trajectories by Treatment Arm",
+    subtitle = "Colored lines = individual patients; bold = mean trajectory per group",
+    x = "Week",
+    y = "HbA1c (%)",
+    color = "Treatment"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top")
+
+
+```
+:::
+:::
+
+
+<style>
+.tiny-table table { font-size: 0.8em; }        /* adjust as needed (0.8–0.9em) */
+.tiny-table figcaption, .tiny-table .table-caption { font-size: 0.75em; }
+</style>
+
+
+
+
+
+## <span style="font-size:80%">Summary</span> {.smaller}
+
+- Numerical representations :
+
+  - quantitative variables describe measurable biological or clinical phenomena — intensity, magnitude, duration, or rate
+
+  - meaning of numerical representations is context-dependent
+
+- Visual encoding transforms numeric values into perceptual cues — position, length, angle, area, color, slope
+
+- Numeric visualization converts raw quantitative data into perceptual evidence
+
+
+::: footer
+:::
